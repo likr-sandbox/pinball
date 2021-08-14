@@ -1,47 +1,105 @@
-use std::f64::consts::PI;
+use crate::pinball::game::Game;
+use crate::pinball::renderer::draw;
+use std::cell::RefCell;
+use std::rc::Rc;
+use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlCanvasElement;
 use yew::prelude::*;
 
-fn draw(canvas: HtmlCanvasElement) {
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .unwrap();
-    context.begin_path();
+fn window() -> web_sys::Window {
+    web_sys::window().expect("no global `window` exists")
+}
 
-    // Draw the outer circle.
-    context.arc(75.0, 75.0, 50.0, 0.0, PI * 2.0).unwrap();
-
-    // Draw the mouth.
-    context.move_to(110.0, 75.0);
-    context.arc(75.0, 75.0, 35.0, 0.0, PI).unwrap();
-
-    // Draw the left eye.
-    context.move_to(65.0, 65.0);
-    context.arc(60.0, 65.0, 5.0, 0.0, PI * 2.0).unwrap();
-
-    // Draw the right eye.
-    context.move_to(95.0, 65.0);
-    context.arc(90.0, 65.0, 5.0, 0.0, PI * 2.0).unwrap();
-
-    context.stroke();
+fn request_animation_frame(f: &Closure<dyn FnMut()>) {
+    window()
+        .request_animation_frame(f.as_ref().unchecked_ref())
+        .expect("should register `requestAnimationFrame` OK");
 }
 
 #[function_component(Home)]
 pub fn home() -> Html {
-    use_effect(|| {
-        if let Some(canvas) = yew::utils::document().get_element_by_id("canvas") {
-            let canvas = canvas
-                .dyn_into::<HtmlCanvasElement>()
-                .map_err(|_| ())
-                .unwrap();
-            draw(canvas);
-        }
-        || {}
-    });
+    let mousedown_ref = use_ref(|| None);
+    let game_ref = use_ref(|| Game::new());
+    {
+        let game_ref = Rc::clone(&game_ref);
+        use_effect(move || {
+            let f = Rc::new(RefCell::new(None));
+            let g = f.clone();
+            *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
+                if let Some(canvas) = yew::utils::document().get_element_by_id("canvas") {
+                    request_animation_frame(f.borrow().as_ref().unwrap());
+                    let mut game = game_ref.borrow_mut();
+                    let canvas = canvas
+                        .dyn_into::<HtmlCanvasElement>()
+                        .map_err(|_| ())
+                        .unwrap();
+                    game.tick();
+                    draw(&game, &canvas);
+                } else {
+                    let _ = f.borrow_mut().take();
+                }
+            }) as Box<dyn FnMut()>));
+
+            request_animation_frame(g.borrow().as_ref().unwrap());
+
+            || {}
+        });
+    }
+
+    let handle_mousemove = {
+        let mousedown_ref = Rc::clone(&mousedown_ref);
+        let game_ref = Rc::clone(&game_ref);
+        Callback::from(move |event: MouseEvent| {
+            if let Some((x, y)) = *mousedown_ref.borrow() {
+                log::info!("{} {}", event.movement_x(), event.movement_y());
+                let mut game = game_ref.borrow_mut();
+                game.pull_plunger(event.movement_y() as f64)
+            }
+        })
+    };
+    let handle_mousedown = {
+        let mousedown_ref = Rc::clone(&mousedown_ref);
+        Callback::from(move |event| {
+            log::info!("mousedown");
+            *mousedown_ref.borrow_mut() = Some((0., 0.));
+        })
+    };
+    let handle_mouseup = {
+        let mousedown_ref = Rc::clone(&mousedown_ref);
+        Callback::from(move |_| {
+            log::info!("mouseup");
+            *mousedown_ref.borrow_mut() = None;
+        })
+    };
+    let handle_touchmove = {
+        let mousedown_ref = Rc::clone(&mousedown_ref);
+        let game_ref = Rc::clone(&game_ref);
+        Callback::from(move |event: TouchEvent| {
+            log::info!("touchmove");
+            if let Some((x, y)) = *mousedown_ref.borrow() {
+                let mut game = game_ref.borrow_mut();
+                game.pull_plunger(1.)
+            }
+        })
+    };
+    let handle_touchstart = {
+        let mousedown_ref = Rc::clone(&mousedown_ref);
+        Callback::from(move |event| {
+            log::info!("touchstart");
+            *mousedown_ref.borrow_mut() = Some((0., 0.));
+        })
+    };
+    let handle_touchend = {
+        let mousedown_ref = Rc::clone(&mousedown_ref);
+        let game_ref = Rc::clone(&game_ref);
+        Callback::from(move |_| {
+            log::info!("touchend");
+            *mousedown_ref.borrow_mut() = None;
+            let mut game = game_ref.borrow_mut();
+            game.start();
+        })
+    };
     html! {
         <>
             <ion-header>
@@ -52,10 +110,17 @@ pub fn home() -> Html {
                     <ion-title>{"Home"}</ion-title>
                 </ion-toolbar>
             </ion-header>
-            <ion-content>
-            <ion-item>
-                <canvas id="canvas" width="800" height="400" style="width: 100%; height: 100%;" />
-                </ion-item>
+            <ion-content style="--overflow: hidden;">
+                <canvas
+                    id="canvas"
+                    width="375"
+                    height="768"
+                    onmousemove={handle_mousemove}
+                    onmousedown={handle_mousedown}
+                    onmouseup={handle_mouseup}
+                    ontouchmove={handle_touchmove}
+                    ontouchstart={handle_touchstart}
+                    ontouchend={handle_touchend} />
             </ion-content>
         </>
     }

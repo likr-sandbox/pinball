@@ -1,24 +1,14 @@
+mod pages;
+mod pinball;
+
+use pages::home::Home;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
-mod pages;
-use pages::home::Home;
-
 #[derive(Routable, PartialEq, Clone, Debug)]
 pub enum Route {
-    #[at("/posts/:id")]
-    Post { id: u64 },
-    #[at("/posts")]
-    Posts,
-    #[at("/authors/:id")]
-    Author { id: u64 },
-    #[at("/authors")]
-    Authors,
     #[at("/")]
     Home,
-    #[not_found]
-    #[at("/404")]
-    NotFound,
 }
 
 #[function_component(App)]
@@ -50,5 +40,6 @@ fn switch(routes: &Route) -> Html {
 }
 
 fn main() {
+    wasm_logger::init(wasm_logger::Config::new(log::Level::Info));
     yew::start_app::<App>();
 }
