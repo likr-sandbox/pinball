@@ -1,0 +1,14 @@
+{
+  "name": "pinball",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "deploy": "trunk build && netlify deploy -d dist --prod"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "netlify-cli": "^6.3.5"
+  }
+}
