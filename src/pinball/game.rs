@@ -341,10 +341,12 @@ impl Game {
     pub fn start(&mut self) {
         let k = self.plunger.k;
         let d = self.plunger.d;
-        self.plunger.d = 0.;
-        self.ball.vy = (0.5 * k * d * d).min(15.);
-        self.ball.vx = ((self.plunger.d as i64) % 3 - 1) as f64;
-        self.ball.fixed = false;
+        if d >= 1. {
+            self.plunger.d = 0.;
+            self.ball.vy = (0.5 * k * d * d).min(15.);
+            self.ball.vx = ((self.plunger.d as i64) % 3 - 1) as f64;
+            self.ball.fixed = false;
+        }
     }
 
     pub fn moving(&self) -> bool {
