@@ -22,7 +22,7 @@ pub struct Wall {
     pub y2: f64,
 }
 
-pub struct Hall {
+pub struct Hole {
     pub x: f64,
     pub y: f64,
     pub r: f64,
@@ -42,7 +42,7 @@ pub struct Game {
     pub ball: Ball,
     pub pins: Vec<Pin>,
     pub walls: Vec<Wall>,
-    pub halls: Vec<Hall>,
+    pub holes: Vec<Hole>,
     pub plunger: Plunger,
     pub width: f64,
     pub height: f64,
@@ -61,6 +61,75 @@ impl Game {
         let ball_r = 25.;
         let x0 = 550.;
         let y0 = plunger_h + ball_r;
+        let holes = vec![
+            Hole {
+                x: 120.,
+                y: 450.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 270.,
+                y: 450.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 410.,
+                y: 450.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 120.,
+                y: 320.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 270.,
+                y: 320.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 410.,
+                y: 320.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 120.,
+                y: 190.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 270.,
+                y: 190.,
+                r: 30.,
+                empty: true,
+            },
+            Hole {
+                x: 410.,
+                y: 190.,
+                r: 30.,
+                empty: true,
+            },
+        ];
+        let mut pins = vec![];
+        for hole in holes.iter() {
+            pins.push(Pin {
+                x: hole.x - hole.r - 8.,
+                y: hole.y + hole.r + 20.,
+                r: 8.,
+            });
+            pins.push(Pin {
+                x: hole.x + hole.r + 8.,
+                y: hole.y + hole.r + 20.,
+                r: 8.,
+            });
+        }
         Game {
             ball: Ball {
                 x: x0,
@@ -70,7 +139,7 @@ impl Game {
                 r: ball_r,
                 fixed: true,
             },
-            pins: vec![],
+            pins,
             walls: vec![
                 Wall {
                     x1: width - 300.,
@@ -133,7 +202,7 @@ impl Game {
                     y2: plunger_h,
                 },
             ],
-            halls: vec![],
+            holes,
             plunger: Plunger {
                 x: 520.,
                 y: plunger_h,
