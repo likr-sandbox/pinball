@@ -78,7 +78,7 @@ pub fn game_page() -> Html {
     };
     let handle_mousedown = {
         let mousedown_ref = Rc::clone(&mousedown_ref);
-        Callback::from(move |event| {
+        Callback::from(move |_| {
             log::info!("mousedown");
             *mousedown_ref.borrow_mut() = true;
         })
@@ -96,7 +96,7 @@ pub fn game_page() -> Html {
     let handle_touchmove = {
         let mousedown_ref = Rc::clone(&mousedown_ref);
         let game_ref = Rc::clone(&game_ref);
-        Callback::from(move |event: TouchEvent| {
+        Callback::from(move |_: TouchEvent| {
             log::info!("touchmove");
             if *mousedown_ref.borrow() {
                 let mut game = game_ref.borrow_mut();
@@ -108,7 +108,7 @@ pub fn game_page() -> Html {
     };
     let handle_touchstart = {
         let mousedown_ref = Rc::clone(&mousedown_ref);
-        Callback::from(move |event| {
+        Callback::from(move |_| {
             log::info!("touchstart");
             *mousedown_ref.borrow_mut() = true;
         })
@@ -133,15 +133,13 @@ pub fn game_page() -> Html {
                     <ion-buttons>
                         <ion-back-button default-href="/" onclick={handle_click_back_button} />
                     </ion-buttons>
-                    <ion-title>{"スマボ de 盆"}</ion-title>
+                    <ion-title>{"ステージ1"}</ion-title>
                 </ion-toolbar>
             </ion-header>
             <ion-content style="--overflow: hidden;">
                 <div id="wrapper" style="width: 100%; height: 100%;">
                     <canvas
                         id="canvas"
-                        width="375"
-                        height="768"
                         onmousemove={handle_mousemove}
                         onmousedown={handle_mousedown}
                         onmouseup={handle_mouseup}

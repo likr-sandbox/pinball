@@ -25,6 +25,12 @@ fn app() -> Html {
                             <ion-title>{"スマボ de 盆"}</ion-title>
                         </ion-toolbar>
                     </ion-header>
+                    <ion-content>
+                        <ion-list>
+                            <ion-item>{"ゲームセレクト"}</ion-item>
+                            <ion-item>{"About"}</ion-item>
+                        </ion-list>
+                    </ion-content>
                 </ion-menu>
                 <div id="main" class="ion-page">
                     <Router<Route> render={Router::render(switch)} />
