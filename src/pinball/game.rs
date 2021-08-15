@@ -46,6 +46,8 @@ pub struct Game {
     pub plunger: Plunger,
     pub width: f64,
     pub height: f64,
+    pub x0: f64,
+    pub y0: f64,
     g: f64,
     theta: f64,
 }
@@ -57,10 +59,12 @@ impl Game {
         let wall_w = 20.;
         let plunger_h = 400.;
         let ball_r = 25.;
+        let x0 = 550.;
+        let y0 = plunger_h + ball_r;
         Game {
             ball: Ball {
-                x: 550.,
-                y: plunger_h + ball_r,
+                x: x0,
+                y: y0,
                 vx: 0.,
                 vy: 0.,
                 r: ball_r,
@@ -140,6 +144,8 @@ impl Game {
             },
             width,
             height,
+            x0,
+            y0,
             g: 0.1,
             theta: PI / 18.,
         }
@@ -204,6 +210,10 @@ impl Game {
             self.ball.vy *= 0.995;
 
             if self.ball.y < 70. {
+                self.ball.x = self.x0;
+                self.ball.y = self.y0;
+                self.ball.vx = 0.;
+                self.ball.vy = 0.;
                 self.ball.fixed = true;
             }
         }

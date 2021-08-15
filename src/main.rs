@@ -1,7 +1,8 @@
 mod pages;
 mod pinball;
 
-use pages::home::Home;
+use pages::game::GamePage;
+use pages::home::HomePage;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -9,6 +10,8 @@ use yew_router::prelude::*;
 pub enum Route {
     #[at("/")]
     Home,
+    #[at("/game")]
+    Game,
 }
 
 #[function_component(App)]
@@ -19,7 +22,7 @@ fn app() -> Html {
                 <ion-menu content-id="main">
                     <ion-header>
                         <ion-toolbar>
-                            <ion-title>{"Menu"}</ion-title>
+                            <ion-title>{"スマボ de 盆"}</ion-title>
                         </ion-toolbar>
                     </ion-header>
                 </ion-menu>
@@ -33,8 +36,11 @@ fn app() -> Html {
 
 fn switch(routes: &Route) -> Html {
     match routes {
-        _ => {
-            html! { <Home />}
+        Route::Home => {
+            html! { <HomePage />}
+        }
+        Route::Game => {
+            html! { <GamePage />}
         }
     }
 }
