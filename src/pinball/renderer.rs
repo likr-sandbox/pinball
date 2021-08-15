@@ -1,4 +1,4 @@
-use crate::pinball::game::{Ball, Game, Plunger};
+use crate::pinball::game::{Ball, Game, Plunger, Wall};
 use std::f64::consts::PI;
 use wasm_bindgen::JsCast;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
@@ -27,6 +27,9 @@ pub fn draw(game: &Game, canvas: &HtmlCanvasElement) {
     context.translate(-gw / 2., -gh / 2.).ok();
 
     draw_board(&game, &context);
+    for wall in game.walls.iter() {
+        draw_wall(wall, &context);
+    }
     let d = game.plunger.d;
     draw_plunger(&game.plunger, d, &context);
     draw_ball(&game.ball, d, &context);
@@ -36,7 +39,7 @@ pub fn draw(game: &Game, canvas: &HtmlCanvasElement) {
 
 fn draw_plunger(plunger: &Plunger, d: f64, context: &CanvasRenderingContext2d) {
     context.save();
-    context.set_fill_style(&"#C0C0C0".into());
+    context.set_fill_style(&"#c0c0c0".into());
     context.fill_rect(plunger.x, plunger.y - plunger.h - d, plunger.w, plunger.h);
     context.restore();
 }
@@ -62,5 +65,17 @@ fn draw_board(game: &Game, context: &CanvasRenderingContext2d) {
     context.fill_rect(0., game.height - s, game.width, s);
     context.fill_rect(game.width - s, 0., s, game.height);
     context.fill_rect(500., 0., s, 400.);
+    context.set_fill_style(&"#000".into());
+    context.fill_rect(20., 20., 480., 80.);
+    context.restore();
+}
+
+fn draw_wall(wall: &Wall, context: &CanvasRenderingContext2d) {
+    context.save();
+    context.begin_path();
+    context.set_stroke_style(&"#8b4513".into());
+    context.move_to(wall.x1, wall.y1);
+    context.line_to(wall.x2, wall.y2);
+    context.stroke();
     context.restore();
 }
