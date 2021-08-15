@@ -70,7 +70,6 @@ pub fn game_page() -> Html {
         let game_ref = Rc::clone(&game_ref);
         Callback::from(move |event: MouseEvent| {
             if *mousedown_ref.borrow() {
-                log::info!("{} {}", event.movement_x(), event.movement_y());
                 let mut game = game_ref.borrow_mut();
                 game.pull_plunger(event.movement_y() as f64)
             }
@@ -79,7 +78,6 @@ pub fn game_page() -> Html {
     let handle_mousedown = {
         let mousedown_ref = Rc::clone(&mousedown_ref);
         Callback::from(move |_| {
-            log::info!("mousedown");
             *mousedown_ref.borrow_mut() = true;
         })
     };
@@ -87,7 +85,6 @@ pub fn game_page() -> Html {
         let mousedown_ref = Rc::clone(&mousedown_ref);
         let game_ref = Rc::clone(&game_ref);
         Callback::from(move |_| {
-            log::info!("mouseup");
             *mousedown_ref.borrow_mut() = false;
             let mut game = game_ref.borrow_mut();
             game.start();
@@ -97,7 +94,6 @@ pub fn game_page() -> Html {
         let mousedown_ref = Rc::clone(&mousedown_ref);
         let game_ref = Rc::clone(&game_ref);
         Callback::from(move |_: TouchEvent| {
-            log::info!("touchmove");
             if *mousedown_ref.borrow() {
                 let mut game = game_ref.borrow_mut();
                 if !game.moving() {
@@ -109,7 +105,6 @@ pub fn game_page() -> Html {
     let handle_touchstart = {
         let mousedown_ref = Rc::clone(&mousedown_ref);
         Callback::from(move |_| {
-            log::info!("touchstart");
             *mousedown_ref.borrow_mut() = true;
         })
     };
@@ -117,7 +112,6 @@ pub fn game_page() -> Html {
         let mousedown_ref = Rc::clone(&mousedown_ref);
         let game_ref = Rc::clone(&game_ref);
         Callback::from(move |_| {
-            log::info!("touchend");
             *mousedown_ref.borrow_mut() = false;
             let mut game = game_ref.borrow_mut();
             game.start();

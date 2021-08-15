@@ -251,13 +251,11 @@ impl Game {
                 let e = vx * y - vy * x;
                 let cx = (b * e + vx * c) / det;
                 let cy = (vy * c - a * e) / det;
-                log::info!("{} {} {}", det, cx, cy);
                 if cx + 1. < x1.min(*x2)
                     || x1.max(*x2) < cx - 1.
                     || cy + 1. < y1.min(*y2)
                     || y1.max(*y2) < cy - 1.
                 {
-                    log::info!("{} {} {} {}", x1, x2, y1, y2);
                     continue;
                 }
 
