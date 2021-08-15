@@ -31,7 +31,7 @@ pub fn draw(game: &Game, canvas: &HtmlCanvasElement) {
         draw_wall(wall, &context);
     }
     for hole in game.holes.iter() {
-        draw_hole(hole, &context);
+        draw_hole(hole, game.ball.r, &context);
     }
     for pin in game.pins.iter() {
         draw_pin(pin, &context);
@@ -110,13 +110,20 @@ fn draw_wall(wall: &Wall, context: &CanvasRenderingContext2d) {
     context.restore();
 }
 
-fn draw_hole(hole: &Hole, context: &CanvasRenderingContext2d) {
+fn draw_hole(hole: &Hole, ball_r: f64, context: &CanvasRenderingContext2d) {
     context.save();
     context.set_fill_style(&"#000".into());
     context.begin_path();
     context.arc(hole.x, hole.y, hole.r, 0., 2. * PI).ok();
     context.close_path();
     context.fill();
+    if !hole.empty {
+        context.set_fill_style(&"#f00".into());
+        context.begin_path();
+        context.arc(hole.x, hole.y, ball_r, 0., 2. * PI).ok();
+        context.close_path();
+        context.fill();
+    }
     context.restore();
 }
 

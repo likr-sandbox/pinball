@@ -58,74 +58,74 @@ impl Game {
         let height = 800.;
         let wall_w = 20.;
         let plunger_h = 400.;
-        let ball_r = 25.;
+        let ball_r = 15.;
         let x0 = 550.;
         let y0 = plunger_h + ball_r;
         let holes = vec![
             Hole {
                 x: 120.,
                 y: 450.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 270.,
                 y: 450.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 410.,
                 y: 450.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 120.,
                 y: 320.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 270.,
                 y: 320.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 410.,
                 y: 320.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 120.,
                 y: 190.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 270.,
                 y: 190.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
             Hole {
                 x: 410.,
                 y: 190.,
-                r: 30.,
+                r: 20.,
                 empty: true,
             },
         ];
         let mut pins = vec![];
         for hole in holes.iter() {
             pins.push(Pin {
-                x: hole.x - hole.r - 8.,
+                x: hole.x - hole.r - 10.,
                 y: hole.y + hole.r + 20.,
                 r: 8.,
             });
             pins.push(Pin {
-                x: hole.x + hole.r + 8.,
+                x: hole.x + hole.r + 10.,
                 y: hole.y + hole.r + 20.,
                 r: 8.,
             });
@@ -274,16 +274,64 @@ impl Game {
                 self.ball.vy = v * t3.sin();
             }
 
-            self.ball.vy -= self.g * self.theta.sin();
-            self.ball.vx *= 0.995;
-            self.ball.vy *= 0.995;
+            for pin in self.pins.iter() {
+                let Pin {
+                    x: x1,
+                    y: y1,
+                    r: r1,
+                } = pin;
+                let Ball {
+                    x: x2,
+                    y: y2,
+                    r: r2,
+                    ..
+                } = self.ball;
+                let dx = x1 - x2;
+                let dy = y1 - y2;
+                if (dx * dx + dy * dy).sqrt() <= r1 + r2 {
+                    self.ball.vx = -0.9 * self.ball.vx;
+                    self.ball.vy = -0.9 * self.ball.vy;
+                }
+            }
 
-            if self.ball.y < 70. {
-                self.ball.x = self.x0;
-                self.ball.y = self.y0;
-                self.ball.vx = 0.;
-                self.ball.vy = 0.;
-                self.ball.fixed = true;
+            for hole in self.holes.iter_mut() {
+                let Hole {
+                    x: x1,
+                    y: y1,
+                    r: r1,
+                    empty,
+                } = &hole;
+                let Ball {
+                    x: x2,
+                    y: y2,
+                    r: r2,
+                    ..
+                } = self.ball;
+                let dx = x1 - x2;
+                let dy = y1 - y2;
+                if *empty && (dx * dx + dy * dy).sqrt() + r2 <= *r1 {
+                    self.ball.x = self.x0;
+                    self.ball.y = self.y0;
+                    self.ball.vx = 0.;
+                    self.ball.vy = 0.;
+                    self.ball.fixed = true;
+                    hole.empty = false;
+                    break;
+                }
+            }
+
+            if !self.ball.fixed {
+                self.ball.vy -= self.g * self.theta.sin();
+                self.ball.vx *= 0.995;
+                self.ball.vy *= 0.995;
+
+                if self.ball.y < 70. {
+                    self.ball.x = self.x0;
+                    self.ball.y = self.y0;
+                    self.ball.vx = 0.;
+                    self.ball.vy = 0.;
+                    self.ball.fixed = true;
+                }
             }
         }
     }
@@ -296,7 +344,7 @@ impl Game {
         let k = self.plunger.k;
         let d = self.plunger.d;
         self.plunger.d = 0.;
-        self.ball.vy = (0.5 * k * d * d).min(10.);
+        self.ball.vy = (0.5 * k * d * d).min(15.);
         self.ball.vx = ((self.plunger.d as i64) % 3 - 1) as f64;
         self.ball.fixed = false;
     }
